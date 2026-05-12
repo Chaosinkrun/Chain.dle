@@ -187,9 +187,142 @@
 
     @keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-6px);}40%,80%{transform:translateX(6px);}}
     @keyframes pop{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+
+    /* ── Instructions modal ── */
+    #instructions-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);}
+    #instructions-overlay.hidden{display:none;}
+    #instructions-modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;animation:modalIn .3s ease;}
+    @keyframes modalIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+    #instructions-modal::-webkit-scrollbar{width:4px;}
+    #instructions-modal::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+    .instr-header{padding:20px 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .instr-title{font-family:var(--font-head);font-size:18px;font-weight:800;letter-spacing:6px;text-transform:uppercase;color:var(--text);}
+    .instr-close{background:transparent;border:none;cursor:pointer;color:var(--muted);font-size:22px;line-height:1;padding:0 2px;transition:color .2s;}
+    .instr-close:hover{color:var(--text);}
+    .instr-body{padding:20px;display:flex;flex-direction:column;gap:20px;}
+    .instr-section-title{font-family:var(--font-head);font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+    .instr-text{font-size:13px;color:var(--muted);line-height:1.8;}
+    .instr-text strong{color:var(--text);font-weight:600;}
+    .instr-example{display:flex;gap:5px;margin:12px 0 4px;}
+    .instr-tile{width:42px;height:42px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;font-family:var(--font-head);text-transform:uppercase;border:2px solid var(--border);}
+    .instr-tile.correct{background:var(--correct);border-color:var(--correct);color:#fff;}
+    .instr-tile.present{background:var(--present);border-color:var(--present);color:#fff;}
+    .instr-tile.absent{background:var(--absent);border-color:var(--absent);color:#555;}
+    .instr-tile.plain{background:var(--bg);color:var(--text);}
+    .instr-legend{font-size:11px;color:var(--muted);line-height:1.9;}
+    .instr-legend div{display:flex;align-items:center;gap:8px;margin-bottom:2px;}
+    .dot-c,.dot-p,.dot-a{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+    .dot-c{background:var(--correct);}
+    .dot-p{background:var(--present);}
+    .dot-a{background:var(--absent);}
+    .instr-chain-example{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0;}
+    .chain-ex-word{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:2px;color:var(--text);}
+    .chain-ex-arrow{color:var(--muted);font-size:14px;}
+    .instr-rewards-grid{display:flex;flex-direction:column;gap:6px;}
+    .instr-reward-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;}
+    .instr-reward-day{font-family:var(--font-head);font-size:12px;font-weight:800;color:var(--accent);min-width:52px;flex-shrink:0;}
+    .instr-reward-desc{font-size:12px;color:var(--muted);line-height:1.5;flex:1;}
+    .instr-reward-icon{font-size:16px;flex-shrink:0;}
+    .instr-footer{padding:16px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+    .instr-dont-show{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--muted);letter-spacing:1px;user-select:none;}
+    .instr-dont-show input{accent-color:var(--accent);width:14px;height:14px;cursor:pointer;}
+    .instr-play-btn{padding:11px 32px;background:var(--accent);border:none;border-radius:6px;font-family:var(--font-head);font-size:13px;font-weight:800;letter-spacing:3px;text-transform:uppercase;cursor:pointer;color:var(--bg);transition:opacity .2s;white-space:nowrap;}
+    .instr-play-btn:hover{opacity:.88;}
   </style>
 </head>
 <body>
+
+<!-- ── Instructions Modal ── -->
+<div id="instructions-overlay">
+  <div id="instructions-modal" role="dialog" aria-modal="true" aria-labelledby="instr-heading">
+    <div class="instr-header">
+      <div class="instr-title" id="instr-heading">How to Play</div>
+      <button class="instr-close" id="instr-close-btn" aria-label="Close instructions">×</button>
+    </div>
+    <div class="instr-body">
+
+      <div>
+        <div class="instr-section-title">The Chain</div>
+        <p class="instr-text">Each day there are <strong>4 hidden words</strong> linked in a chain. Every word connects to the one before it. A theme clue at the top hints at the chain's nature — it's cryptic, but it will make sense once you solve it.</p>
+        <div class="instr-chain-example">
+          <div class="chain-ex-word">?????</div><div class="chain-ex-arrow">→</div>
+          <div class="chain-ex-word">?????</div><div class="chain-ex-arrow">→</div>
+          <div class="chain-ex-word">?????</div><div class="chain-ex-arrow">→</div>
+          <div class="chain-ex-word">?????</div>
+        </div>
+        <p class="instr-text">Each round reveals a clue that <strong>explicitly names the previous word</strong> and nudges you toward the next one.</p>
+      </div>
+
+      <hr class="instr-divider"/>
+
+      <div>
+        <div class="instr-section-title">Guessing</div>
+        <p class="instr-text">Type any 5-letter word and press <strong>Enter</strong>. You have <strong>6 guesses in total</strong> across all 4 rounds — every wrong guess counts toward that limit, so use them wisely.</p>
+        <p class="instr-text" style="margin-top:8px;">After each guess the tiles reveal how close you were:</p>
+        <div class="instr-example">
+          <div class="instr-tile correct">S</div>
+          <div class="instr-tile absent">H</div>
+          <div class="instr-tile present">A</div>
+          <div class="instr-tile absent">L</div>
+          <div class="instr-tile absent">E</div>
+        </div>
+        <div class="instr-legend">
+          <div><span class="dot-c"></span><strong style="color:var(--text)">Green</strong> — right letter, right position</div>
+          <div><span class="dot-p"></span><strong style="color:var(--text)">Yellow</strong> — right letter, wrong position</div>
+          <div><span class="dot-a"></span><strong style="color:var(--text)">Grey</strong> — letter not in the word</div>
+        </div>
+      </div>
+
+      <hr class="instr-divider"/>
+
+      <div>
+        <div class="instr-section-title">Daily Streak &amp; Rewards</div>
+        <p class="instr-text">Play every day to build your streak. Hit a milestone and unlock a one-time reward for that day's puzzle. Rewards reset after <strong>30 days</strong> — use them or lose them.</p>
+        <div class="instr-rewards-grid" style="margin-top:12px;">
+          <div class="instr-reward-row">
+            <div class="instr-reward-day">DAY 5</div>
+            <div class="instr-reward-desc">+1 extra guess added to your pool</div>
+            <i class="ti ti-plus instr-reward-icon" style="color:var(--accent2);" aria-hidden="true"></i>
+          </div>
+          <div class="instr-reward-row">
+            <div class="instr-reward-day">DAY 10</div>
+            <div class="instr-reward-desc">One letter pre-revealed in every word</div>
+            <i class="ti ti-letter-case instr-reward-icon" style="color:var(--accent);" aria-hidden="true"></i>
+          </div>
+          <div class="instr-reward-row">
+            <div class="instr-reward-day">DAY 15</div>
+            <div class="instr-reward-desc">+1 extra guess added to your pool</div>
+            <i class="ti ti-plus instr-reward-icon" style="color:var(--accent2);" aria-hidden="true"></i>
+          </div>
+          <div class="instr-reward-row">
+            <div class="instr-reward-day">DAY 20</div>
+            <div class="instr-reward-desc">+1 extra guess added to your pool</div>
+            <i class="ti ti-plus instr-reward-icon" style="color:var(--accent2);" aria-hidden="true"></i>
+          </div>
+          <div class="instr-reward-row">
+            <div class="instr-reward-day">DAY 25</div>
+            <div class="instr-reward-desc">One letter pre-revealed in every word</div>
+            <i class="ti ti-letter-case instr-reward-icon" style="color:var(--accent);" aria-hidden="true"></i>
+          </div>
+          <div class="instr-reward-row">
+            <div class="instr-reward-day">DAY 30</div>
+            <div class="instr-reward-desc">Reshuffle — regenerate today's entire puzzle</div>
+            <i class="ti ti-refresh instr-reward-icon" style="color:#e85447;" aria-hidden="true"></i>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="instr-footer">
+      <label class="instr-dont-show">
+        <input type="checkbox" id="instr-dont-show-cb" />
+        Don't show again
+      </label>
+      <button class="instr-play-btn" id="instr-play-btn">PLAY</button>
+    </div>
+  </div>
+</div>
+
 <div id="app">
   <div id="header">
     <div class="header-spacer"></div>
@@ -197,9 +330,14 @@
       <div id="title">Chain·dle</div>
       <div id="subtitle">4 words · 6 guesses · 1 chain</div>
     </div>
-    <button class="icon-btn" id="history-btn" aria-label="View past Chaindles">
-      <i class="ti ti-clock-history" aria-hidden="true"></i> PAST
-    </button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="icon-btn" id="how-to-play-btn" aria-label="How to play" style="padding:8px 10px;min-width:0;">
+        <i class="ti ti-help" aria-hidden="true"></i>
+      </button>
+      <button class="icon-btn" id="history-btn" aria-label="View past Chaindles">
+        <i class="ti ti-clock-history" aria-hidden="true"></i> PAST
+      </button>
+    </div>
   </div>
 
   <div id="badges-row">
@@ -766,6 +904,39 @@ document.addEventListener('keydown',e=>{
 });
 
 loadOrGenerate();
+
+/* ── Instructions modal ── */
+const INSTR_KEY = 'chaindle-instructions-seen';
+
+function showInstructions() {
+  document.getElementById('instructions-overlay').classList.remove('hidden');
+}
+function hideInstructions() {
+  document.getElementById('instructions-overlay').classList.add('hidden');
+}
+
+function maybeShowInstructions() {
+  const seen = localStorage.getItem(INSTR_KEY);
+  if (!seen) showInstructions();
+}
+
+document.getElementById('instr-close-btn').addEventListener('click', hideInstructions);
+document.getElementById('instr-play-btn').addEventListener('click', () => {
+  if (document.getElementById('instr-dont-show-cb').checked) {
+    localStorage.setItem(INSTR_KEY, '1');
+  }
+  hideInstructions();
+});
+document.getElementById('how-to-play-btn').addEventListener('click', showInstructions);
+document.getElementById('instructions-overlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('instructions-overlay')) hideInstructions();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') hideInstructions();
+});
+
+// Show on first ever load, after a brief moment
+setTimeout(maybeShowInstructions, 400);
 </script>
 </body>
 </html>
