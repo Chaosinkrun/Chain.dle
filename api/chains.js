@@ -367,6 +367,351 @@ export const chains = [
       },
     ],
   },
+
+  // ── 16 ─────────────────────────────────────────────────────────────────────
+  {
+    theme: "From sediment to deception — geology rarely lies...",
+    chain: [
+      {
+        word: "SHALE",
+        clue: "Start here: a fine-grained sedimentary rock that splits easily into thin layers.",
+      },
+      {
+        word: "SCARP",
+        clue: "From SHALE: a steep rock face — often where a band of hard rock like SHALE meets softer ground and forms a sudden drop.",
+      },
+      {
+        word: "BLUFF",
+        clue: "From SCARP: a broad, steep SCARP overlooking water — but also a word meaning to deceive by false confidence.",
+      },
+      {
+        word: "FEIGN",
+        clue: "From BLUFF: to BLUFF is to FEIGN — to pretend you hold something you don't.",
+      },
+    ],
+  },
+
+  // ── 17 ─────────────────────────────────────────────────────────────────────
+  {
+    theme: "The baker's hidden language...",
+    chain: [
+      {
+        word: "SPELT",
+        clue: "Start here: an ancient grain older than modern wheat — still used by artisan bakers for its nutty flavour.",
+      },
+      {
+        word: "CRUMB",
+        clue: "From SPELT: the open, porous interior structure of a well-fermented SPELT loaf — what bakers obsess over.",
+      },
+      {
+        word: "SCORE",
+        clue: "From CRUMB: to get a good CRUMB, a baker must SCORE the dough before baking — cutting slashes into the surface to control how it opens.",
+      },
+      {
+        word: "CLEFT",
+        clue: "From SCORE: the SCORE becomes a CLEFT as the loaf bakes and splits dramatically along the cut.",
+      },
+    ],
+  },
+
+  // ── 18 ─────────────────────────────────────────────────────────────────────
+  {
+    theme: "The storm's anatomy, from cloud to channel...",
+    chain: [
+      {
+        word: "ANVIL",
+        clue: "Start here: the flat-topped shape of a mature cumulonimbus thundercloud — named after the blacksmith's tool it resembles.",
+      },
+      {
+        word: "SQUALL",
+        clue: "From ANVIL: beneath the ANVIL cloud, this sudden violent gust of wind arrives with the storm front. But SQUALL is 6 letters — find the 5-letter word for the turbulent downward rush of cold air beneath a storm.",
+      },
+      {
+        word: "GULLY",
+        clue: "From the downpour: the rain carves this — a narrow channel eroded into soft earth or hillside by running water.",
+      },
+      {
+        word: "SPATE",
+        clue: "From GULLY: when rain fills the GULLY past capacity, the stream is in SPATE — flowing fast and dangerously full.",
+      },
+    ],
+  },
+
+  // ── 19 ─────────────────────────────────────────────────────────────────────
+  {
+    theme: "Power, passed by force from hand to hand...",
+    chain: [
+      {
+        word: "EDICT",
+        clue: "Start here: a formal order issued by an authority — carrying the force of law without debate.",
+      },
+      {
+        word: "USURP",
+        clue: "From EDICT: to seize power without an EDICT — to take a throne or position by force from a rightful holder.",
+      },
+      {
+        word: "JUNTA",
+        clue: "From USURP: those who USURP power often form this — a military group that seizes control of a government.",
+      },
+      {
+        word: "PURGE",
+        clue: "From JUNTA: a JUNTA consolidates power by this process — forcibly removing rivals and opponents from their positions.",
+      },
+    ],
+  },
+
+  // ── 20 ─────────────────────────────────────────────────────────────────────
+  {
+    theme: "From the moon's shadow to the sea it commands...",
+    chain: [
+      {
+        word: "UMBRA",
+        clue: "Start here: the darkest inner cone of shadow cast during a solar eclipse — where the moon completely blocks the sun.",
+      },
+      {
+        word: "LUNAR",
+        clue: "From UMBRA: a lunar eclipse occurs when Earth casts its UMBRA on this — find the 5-letter adjective meaning 'of the moon'.",
+      },
+      {
+        word: "TIDAL",
+        clue: "From LUNAR: the moon's gravity drives this — the 5-letter adjective describing the rhythmic rise and fall of the sea.",
+      },
+      {
+        word: "BRINE",
+        clue: "From TIDAL: the TIDAL sea is full of this — the 5-letter word for salt water.",
+      },
+    ],
+  },
+
+  // ── 21 ─────────────────────────────────────────────────────────────────────
+  {
+    theme: "A composition that was never finished...",
+    chain: [
+      {
+        word: "FUGUE",
+        clue: "Start here: a complex musical form where a theme is introduced and then woven through interweaving voices.",
+      },
+      {
+        word: "MOTIF",
+        clue: "From FUGUE: the core melodic idea that a FUGUE develops — a short recurring musical phrase.",
+      },
+      {
+        word: "SCORE",
+        clue: "From MOTIF: the MOTIF lives inside this — the full written notation of a piece of music.",
+      },
+      {
+        word: "TACET",
+        clue: "From SCORE: a marking found in a SCORE — Latin instruction to a performer to remain completely silent.",
+      },
+    ],
+  },
+
+  // ── 22 ─────────────────────────────────────────────────────────────────────
+  {
+    theme: "Below the waterline and back up again...",
+    chain: [
+      {
+        word: "BILGE",
+        clue: "Start here: the lowest internal compartment of a ship's hull — where foul water and debris collect.",
+      },
+      {
+        word: "CAULK",
+        clue: "From BILGE: to keep the BILGE from flooding the hull, shipwrights CAULK — forcing fibrous material into seams between planks.",
+      },
+      {
+        word: "OAKUM",
+        clue: "From CAULK: the material used in CAULKing — tarred hemp fibre, unpicked from old rope.",
+      },
+      {
+        word: "RIVET",
+        clue: "From OAKUM: where OAKUM seals wood, this iron pin fastens metal — hammered through overlapping plates to hold a hull together.",
+      },
+    ],
+  },
+
+  // ── 23 ─────────────────────────────────────────────────────────────────────
+  {
+    theme: "What the fire leaves, and where it leads...",
+    chain: [
+      {
+        word: "EMBER",
+        clue: "Start here: a glowing fragment of coal or wood that persists after a fire burns low.",
+      },
+      {
+        word: "TAPER",
+        clue: "From EMBER: a slender wax candle lit directly from an EMBER — used to carry flame from place to place.",
+      },
+      {
+        word: "NICHE",
+        clue: "From TAPER: the shallow recess cut into a stone wall where a TAPER or candle is set to cast its light.",
+      },
+      {
+        word: "GROUT",
+        clue: "From NICHE: the thin mortar pressed into the joints around the stones that form a NICHE — filling every gap.",
+      },
+    ],
+  },
+
+  // ── 24 ─────────────────────────────────────────────────────────────────────
+  {
+    theme: "The cartographer's hidden vocabulary...",
+    chain: [
+      {
+        word: "DATUM",
+        clue: "Start here: the fixed reference level from which all map heights are measured — sea level is the most common.",
+      },
+      {
+        word: "INSET",
+        clue: "From DATUM: a smaller supplementary map placed within the border of the main one — showing detail or context beyond the DATUM's range.",
+      },
+      {
+        word: "RHUMB",
+        clue: "From INSET: a line on a navigational chart that crosses all meridians at the same angle — useful for compass bearings at sea.",
+      },
+      {
+        word: "CHART",
+        clue: "From RHUMB: a RHUMB line is drawn on this — a nautical or aeronautical map built for navigation.",
+      },
+    ],
+  },
+
+  // ── 25 ────────────────────────────────────────────────────────────────────
+  {
+    theme: "The botanist's walk, root to sky...",
+    chain: [
+      {
+        word: "TUBER",
+        clue: "Start here: a swollen underground stem storing a plant's energy reserves — the potato is a classic example.",
+      },
+      {
+        word: "FROND",
+        clue: "From TUBER: far above the underground TUBER, the large divided leaf of a fern unfurls toward the light.",
+      },
+      {
+        word: "SPORE",
+        clue: "From FROND: a fern produces no flower — instead its FRONDs release these tiny single-celled reproductive bodies.",
+      },
+      {
+        word: "HUMUS",
+        clue: "From SPORE: when SPOREs and fallen FRONDs decay into the forest floor, they become this — the rich dark organic layer that feeds new growth.",
+      },
+    ],
+  },
+
+  // ── 26 ────────────────────────────────────────────────────────────────────
+  {
+    theme: "The well-kept secret, traced from source to silence...",
+    chain: [
+      {
+        word: "CACHE",
+        clue: "Start here: a hidden store of valuable or secret items — weapons, documents, or provisions concealed from discovery.",
+      },
+      {
+        word: "DECOY",
+        clue: "From CACHE: a CACHE is protected by placing this nearby — something designed to draw attention away from the real location.",
+      },
+      {
+        word: "GUILE",
+        clue: "From DECOY: the quality required to plant a convincing DECOY — sly, cunning deception.",
+      },
+      {
+        word: "CLOAK",
+        clue: "From GUILE: GUILEful people operate under this — concealment of their true identity or intent.",
+      },
+    ],
+  },
+
+  // ── 27 ────────────────────────────────────────────────────────────────────
+  {
+    theme: "The cabinetmaker's vocabulary, word by careful word...",
+    chain: [
+      {
+        word: "GOUGE",
+        clue: "Start here: a woodcarver's chisel with a curved concave blade — used to scoop and hollow out wood.",
+      },
+      {
+        word: "TENON",
+        clue: "From GOUGE: once GOUGEd and shaped, the end of a beam is cut into this — a projecting tongue that fits into a mortise joint.",
+      },
+      {
+        word: "DOWEL",
+        clue: "From TENON: a simpler alternative to a TENON — a cylindrical wooden pin inserted into aligned holes to join two pieces.",
+      },
+      {
+        word: "MITRE",
+        clue: "From DOWEL: the 45-degree angled cut where two pieces meet at a corner — used in frames and mouldings.",
+      },
+    ],
+  },
+
+  // ── 28 ────────────────────────────────────────────────────────────────────
+  {
+    theme: "The mind at its most extreme...",
+    chain: [
+      {
+        word: "LUCID",
+        clue: "Start here: clear, rational, fully aware — the sharpest possible state of mind.",
+      },
+      {
+        word: "VAPID",
+        clue: "From LUCID: what a LUCID mind finds insufferable — empty, dull, offering absolutely nothing of substance.",
+      },
+      {
+        word: "INERT",
+        clue: "From VAPID: more lifeless still — chemically or mentally unable to react to anything.",
+      },
+      {
+        word: "STOIC",
+        clue: "From INERT: not INERT but equally unmoved — enduring hardship without complaint or visible emotion.",
+      },
+    ],
+  },
+
+  // ── 29 ────────────────────────────────────────────────────────────────────
+  {
+    theme: "The body's hidden river system...",
+    chain: [
+      {
+        word: "SERUM",
+        clue: "Start here: the pale liquid remaining when blood clots — carrying antibodies but no cells.",
+      },
+      {
+        word: "LYMPH",
+        clue: "From SERUM: similar to SERUM but flowing through its own separate vessel network — the immune system's pale transport fluid.",
+      },
+      {
+        word: "EDEMA",
+        clue: "From LYMPH: when LYMPH drainage fails, fluid accumulates in tissue and causes this — swelling from fluid backup.",
+      },
+      {
+        word: "SHUNT",
+        clue: "From EDEMA: a surgical solution to fluid build-up — a tube inserted to redirect and SHUNT excess fluid away.",
+      },
+    ],
+  },
+
+  // ── 30 ────────────────────────────────────────────────────────────────────
+  {
+    theme: "A soldier's world, from the terrain to the honour...",
+    chain: [
+      {
+        word: "BEVEL",
+        clue: "Start here: the angled edge on a blade or a map's border — a slanted surface that catches the light.",
+      },
+      {
+        word: "FLANK",
+        clue: "From BEVEL: a map shows the enemy's exposed side — the 5-letter word for the side of a military formation or column.",
+      },
+      {
+        word: "SALLY",
+        clue: "From FLANK: to attack an exposed FLANK with a sudden rush out from a defended position — a SALLY.",
+      },
+      {
+        word: "VALOR",
+        clue: "From SALLY: the courage shown in making a desperate SALLY — great bravery in the face of overwhelming danger.",
+      },
+    ],
+  },
 ];
 
 /**
