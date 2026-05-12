@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chain·dle — Daily Word Chain Puzzle</title>
+  <meta name="description" content="A daily word chain puzzle. 4 words, 6 guesses, 1 chain. Can you complete it?" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#0f0f10;--surface:#1a1a1d;--surface2:#242428;--border:#333338;
+      --text:#f0f0ee;--muted:#888884;--accent:#e8c547;--accent2:#4ecdc4;
+      --correct:#538d4e;--present:#b59f3b;--absent:#3a3a3c;
+      --font-head:'Syne',sans-serif;--font-mono:'DM Mono',monospace;
+    }
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-mono);}
+    #app{max-width:520px;margin:0 auto;padding:1.5rem 1rem 3rem;display:flex;flex-direction:column;align-items:center;gap:14px;}
+
+    /* ── Header ── */
+    #header{width:100%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:14px;}
+    #header-center{text-align:center;flex:1;}
+    #title{font-family:var(--font-head);font-size:22px;font-weight:800;letter-spacing:8px;text-transform:uppercase;color:var(--text);}
+    #subtitle{font-size:11px;color:var(--muted);letter-spacing:3px;margin-top:4px;}
+    .icon-btn{background:transparent;border:1px solid var(--border);border-radius:6px;padding:8px 10px;cursor:pointer;color:var(--muted);display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;letter-spacing:1px;transition:border-color .2s,color .2s;white-space:nowrap;}
+    .icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+    .icon-btn i{font-size:16px;}
+    .header-spacer{width:80px;}
+
+    /* ── Badges ── */
+    #badges-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;}
+    #daily-badge,#streak-badge{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:11px;letter-spacing:2px;color:var(--muted);}
+    #daily-badge i{color:var(--accent);font-size:14px;}
+    #streak-badge{cursor:pointer;transition:border-color .2s,color .2s;}
+    #streak-badge:hover{border-color:var(--accent);color:var(--accent);}
+    #streak-icon{font-size:14px;color:#ff6b35;}
+    #streak-label{color:var(--text);font-weight:500;}
+
+    /* ── Reward banner ── */
+    #reward-banner{width:100%;background:var(--surface);border:1px solid var(--accent);border-radius:8px;padding:12px 16px;display:none;animation:slideIn .4s ease;}
+    #reward-banner-inner{display:flex;align-items:center;gap:10px;}
+    #reward-banner-icon{font-size:22px;color:var(--accent);}
+    #reward-banner-text{flex:1;}
+    #reward-banner-title{font-family:var(--font-head);font-size:13px;font-weight:800;letter-spacing:2px;color:var(--accent);margin-bottom:2px;}
+    #reward-banner-sub{font-size:11px;color:var(--muted);line-height:1.5;}
+    #reward-banner-close{background:transparent;border:none;cursor:pointer;color:var(--muted);font-size:18px;padding:0 4px;}
+    @keyframes slideIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+
+    /* ── Streak modal ── */
+    #streak-modal{display:none;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;flex-direction:column;gap:14px;}
+    #streak-modal-header{display:flex;align-items:center;justify-content:space-between;}
+    #streak-modal-title{font-family:var(--font-head);font-size:16px;font-weight:800;letter-spacing:4px;color:var(--text);}
+    #streak-modal-close{background:transparent;border:none;cursor:pointer;color:var(--muted);font-size:20px;}
+    #streak-progress-bar{width:100%;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+    #streak-progress-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .6s ease;}
+    #streak-progress-label{font-size:11px;color:var(--muted);letter-spacing:2px;text-align:center;}
+    #streak-milestones{display:flex;flex-direction:column;gap:8px;}
+    .milestone-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg);}
+    .milestone-row.reached{border-color:rgba(232,197,71,.4);background:rgba(232,197,71,.05);}
+    .milestone-row.current-target{border-color:var(--accent2);background:rgba(78,205,196,.05);}
+    .milestone-day{font-family:var(--font-head);font-size:13px;font-weight:800;color:var(--muted);min-width:46px;}
+    .milestone-day.reached{color:var(--accent);}
+    .milestone-desc{flex:1;font-size:12px;color:var(--muted);line-height:1.5;}
+    .milestone-desc.reached{color:var(--text);}
+    .milestone-consumed{font-size:10px;letter-spacing:2px;color:var(--absent);}
+
+    /* ── Rewards tray ── */
+    #rewards-tray{width:100%;display:none;flex-direction:column;gap:8px;}
+    #rewards-tray-label{font-size:10px;letter-spacing:3px;color:var(--muted);font-family:var(--font-head);}
+    #rewards-tray-items{display:flex;gap:8px;flex-wrap:wrap;}
+    .reward-chip{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--accent);border-radius:6px;padding:6px 12px;font-size:11px;letter-spacing:1px;color:var(--accent);}
+    .reward-chip i{font-size:14px;}
+
+    /* ── Reshuffle ── */
+    #reshuffle-btn-wrap{width:100%;display:none;}
+    #reshuffle-btn{width:100%;padding:10px;background:transparent;border:1px solid var(--accent);border-radius:6px;font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;color:var(--accent);transition:background .2s,color .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+    #reshuffle-btn:hover{background:var(--accent);color:var(--bg);}
+
+    /* ── Theme box ── */
+    #theme-box{width:100%;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:6px;padding:12px 16px;display:none;}
+    #theme-label{font-size:10px;letter-spacing:3px;color:var(--accent);margin-bottom:6px;font-family:var(--font-head);font-weight:700;}
+    #theme-text{font-size:13px;color:var(--text);line-height:1.6;}
+
+    /* ── Round bar ── */
+    #round-bar{display:flex;gap:8px;align-items:center;}
+    .round-pip{width:38px;height:6px;border-radius:3px;background:var(--surface2);transition:background .4s;}
+    .round-pip.done{background:var(--correct);}
+    .round-pip.active{background:var(--accent);}
+    #guess-counter{font-size:12px;color:var(--muted);letter-spacing:2px;margin-left:8px;}
+
+    /* ── Clue box ── */
+    #clue-box{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px 16px;display:none;}
+    #clue-round{font-size:10px;letter-spacing:3px;color:var(--accent2);margin-bottom:4px;font-family:var(--font-head);font-weight:700;}
+    #clue-text{font-size:12px;color:var(--text);line-height:1.6;}
+
+    /* ── Board ── */
+    #board{display:flex;flex-direction:column;gap:6px;}
+    .row{display:flex;gap:6px;}
+    .tile{width:56px;height:56px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;font-family:var(--font-head);text-transform:uppercase;color:var(--text);background:var(--bg);transition:border-color .1s;}
+    .tile.filled{border-color:#666;}
+    .tile.correct{background:var(--correct);border-color:var(--correct);color:#fff;}
+    .tile.present{background:var(--present);border-color:var(--present);color:#fff;}
+    .tile.absent{background:var(--absent);border-color:var(--absent);color:#555;}
+    .tile.active-row{border-color:var(--accent2);}
+    .tile.free-letter{border-color:var(--accent);color:var(--accent);background:rgba(232,197,71,.1);}
+    .round-divider{width:100%;display:flex;align-items:center;gap:10px;padding:2px 0;}
+    .round-divider span{font-size:10px;letter-spacing:2px;color:var(--muted);white-space:nowrap;}
+    .round-divider hr{flex:1;border:none;border-top:1px solid var(--border);}
+
+    /* ── Keyboard ── */
+    #keyboard{display:flex;flex-direction:column;gap:6px;align-items:center;}
+    .kb-row{display:flex;gap:5px;}
+    .key{height:52px;min-width:34px;padding:0 5px;border-radius:5px;border:1px solid var(--border);cursor:pointer;font-family:var(--font-head);font-size:13px;font-weight:700;text-transform:uppercase;background:var(--surface2);color:var(--text);transition:background .2s,color .2s;display:flex;align-items:center;justify-content:center;}
+    .key:active{transform:scale(.95);}
+    .key.wide{min-width:54px;font-size:10px;letter-spacing:1px;}
+    .key.correct{background:var(--correct);border-color:var(--correct);color:#fff;}
+    .key.present{background:var(--present);border-color:var(--present);color:#fff;}
+    .key.absent{background:var(--absent);border-color:var(--absent);color:#444;}
+
+    /* ── Message ── */
+    #message{height:26px;font-size:12px;font-weight:500;letter-spacing:2px;text-align:center;color:var(--accent);opacity:0;transition:opacity .3s;font-family:var(--font-head);}
+    #message.show{opacity:1;}
+
+    /* ── Loading ── */
+    #loading{display:flex;flex-direction:column;align-items:center;gap:16px;padding:40px 0;}
+    #loading-dots{display:flex;gap:8px;}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.2s ease-in-out infinite;}
+    .dot:nth-child(2){animation-delay:.2s;background:var(--accent2);}
+    .dot:nth-child(3){animation-delay:.4s;}
+    #loading-text{font-size:12px;letter-spacing:3px;color:var(--muted);}
+    @keyframes pulse{0%,100%{opacity:.3;transform:scale(.8);}50%{opacity:1;transform:scale(1.1);}}
+
+    /* ── End screen ── */
+    #end-screen{display:none;width:100%;text-align:center;padding:20px 0;}
+    #end-title{font-family:var(--font-head);font-size:28px;font-weight:800;letter-spacing:4px;margin-bottom:8px;}
+    #end-chain{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0;}
+    .chain-word{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:8px 14px;font-size:14px;font-weight:700;letter-spacing:2px;font-family:var(--font-head);}
+    .chain-word.solved{border-color:var(--correct);color:var(--correct);}
+    .chain-word.missed{border-color:var(--absent);color:var(--muted);text-decoration:line-through;}
+    #end-sub{font-size:12px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;}
+    #end-timer-label{font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:4px;}
+    #end-timer{font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--accent);letter-spacing:4px;margin-bottom:16px;}
+    .end-history-btn{padding:10px 24px;background:transparent;border:1px solid var(--border);border-radius:6px;font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;color:var(--muted);transition:border-color .2s,color .2s;display:inline-flex;align-items:center;gap:8px;}
+    .end-history-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+
+    /* ── Lockout screen ── */
+    #lockout-screen{display:none;width:100%;text-align:center;padding:20px 0;}
+    #lockout-title{font-family:var(--font-head);font-size:22px;font-weight:800;letter-spacing:4px;margin-bottom:8px;color:var(--accent2);}
+    #lockout-sub{font-size:12px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;}
+    #lockout-result{font-size:13px;color:var(--text);margin-bottom:8px;line-height:1.8;}
+    #lockout-chain{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0;}
+    #lockout-timer-label{font-size:11px;color:var(--muted);letter-spacing:2px;margin-top:8px;margin-bottom:4px;}
+    #lockout-timer{font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--accent);letter-spacing:4px;margin-bottom:16px;}
+
+    /* ── History screen ── */
+    #history-screen{display:none;width:100%;flex-direction:column;gap:0;}
+    #history-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+    #back-btn{background:transparent;border:1px solid var(--border);border-radius:6px;padding:8px 12px;cursor:pointer;color:var(--muted);display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;letter-spacing:1px;transition:border-color .2s,color .2s;}
+    #back-btn:hover{border-color:var(--accent);color:var(--accent);}
+    #history-title{font-family:var(--font-head);font-size:16px;font-weight:800;letter-spacing:4px;color:var(--text);}
+    #history-empty{text-align:center;padding:40px 0;color:var(--muted);font-size:13px;letter-spacing:2px;}
+    #history-list{display:flex;flex-direction:column;gap:20px;}
+    .history-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+    .history-card-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .history-card-date{font-family:var(--font-head);font-size:13px;font-weight:700;letter-spacing:2px;color:var(--text);}
+    .history-card-score{font-size:11px;letter-spacing:2px;padding:3px 10px;border-radius:12px;font-family:var(--font-head);font-weight:700;}
+    .history-card-score.win{background:rgba(83,141,78,.2);color:var(--correct);border:1px solid rgba(83,141,78,.4);}
+    .history-card-score.lose{background:rgba(232,84,71,.15);color:#e85447;border:1px solid rgba(232,84,71,.3);}
+    .history-card-theme{padding:8px 16px;font-size:11px;color:var(--muted);letter-spacing:1px;border-bottom:1px solid var(--border);line-height:1.5;font-style:italic;}
+    .history-card-body{padding:14px 16px;display:flex;flex-direction:column;gap:14px;}
+    .history-round{display:flex;flex-direction:column;gap:8px;}
+    .history-round-label{font-size:10px;letter-spacing:3px;color:var(--muted);display:flex;align-items:center;gap:8px;}
+    .history-round-label hr{flex:1;border:none;border-top:1px solid var(--border);}
+    .round-answer{font-family:var(--font-head);font-weight:700;font-size:11px;letter-spacing:3px;}
+    .round-answer.solved{color:var(--correct);}
+    .round-answer.missed{color:#e85447;text-decoration:line-through;}
+    .history-mini-board{display:flex;flex-direction:column;gap:3px;}
+    .history-row{display:flex;gap:3px;}
+    .mini-tile{width:32px;height:32px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;font-family:var(--font-head);text-transform:uppercase;border:1px solid var(--border);color:var(--text);background:var(--bg);}
+    .mini-tile.correct{background:var(--correct);border-color:var(--correct);color:#fff;}
+    .mini-tile.present{background:var(--present);border-color:var(--present);color:#fff;}
+    .mini-tile.absent{background:var(--absent);border-color:var(--absent);color:#555;}
+    .mini-tile.empty{opacity:.3;}
+
+    @keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-6px);}40%,80%{transform:translateX(6px);}}
+    @keyframes pop{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <div class="header-spacer"></div>
+    <div id="header-center">
+      <div id="title">Chain·dle</div>
+      <div id="subtitle">4 words · 6 guesses · 1 chain</div>
+    </div>
+    <button class="icon-btn" id="history-btn" aria-label="View past Chaindles">
+      <i class="ti ti-clock-history" aria-hidden="true"></i> PAST
+    </button>
+  </div>
+
+  <div id="badges-row">
+    <div id="daily-badge"><i class="ti ti-calendar" aria-hidden="true"></i><span id="date-label">Daily puzzle</span></div>
+    <div id="streak-badge" role="button" tabindex="0" aria-label="View streak and rewards">
+      <i class="ti ti-flame" id="streak-icon" aria-hidden="true"></i>
+      <span id="streak-label">Day 1</span>
+      <i class="ti ti-chevron-down" style="font-size:12px;margin-left:2px;" aria-hidden="true"></i>
+    </div>
+  </div>
+
+  <div id="reward-banner">
+    <div id="reward-banner-inner">
+      <i class="ti ti-gift" id="reward-banner-icon" aria-hidden="true"></i>
+      <div id="reward-banner-text">
+        <div id="reward-banner-title">REWARD UNLOCKED</div>
+        <div id="reward-banner-sub"></div>
+      </div>
+      <button id="reward-banner-close" aria-label="Close">×</button>
+    </div>
+  </div>
+
+  <div id="streak-modal">
+    <div id="streak-modal-header">
+      <div id="streak-modal-title">YOUR STREAK</div>
+      <button id="streak-modal-close" aria-label="Close streak panel">×</button>
+    </div>
+    <div id="streak-progress-bar"><div id="streak-progress-fill" style="width:0%"></div></div>
+    <div id="streak-progress-label"></div>
+    <div id="streak-milestones"></div>
+  </div>
+
+  <div id="rewards-tray">
+    <div id="rewards-tray-label">ACTIVE REWARDS</div>
+    <div id="rewards-tray-items"></div>
+  </div>
+
+  <div id="reshuffle-btn-wrap">
+    <button id="reshuffle-btn"><i class="ti ti-refresh" aria-hidden="true"></i> RESHUFFLE TODAY'S CHAIN</button>
+  </div>
+
+  <div id="loading">
+    <div id="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div id="loading-text">LOADING...</div>
+  </div>
+
+  <div id="game-ui" style="display:none;width:100%;flex-direction:column;align-items:center;gap:14px;">
+    <div id="theme-box"><div id="theme-label">THEME</div><div id="theme-text"></div></div>
+    <div style="display:flex;align-items:center;">
+      <div id="round-bar"></div>
+      <div id="guess-counter"></div>
+    </div>
+    <div id="clue-box"><div id="clue-round"></div><div id="clue-text"></div></div>
+    <div id="message"></div>
+    <div id="board"></div>
+    <div id="keyboard"></div>
+  </div>
+
+  <div id="end-screen">
+    <div id="end-title"></div>
+    <div id="end-sub"></div>
+    <div id="end-chain"></div>
+    <div id="end-timer-label">NEXT CHAIN IN</div>
+    <div id="end-timer">--:--:--</div>
+    <button class="end-history-btn" id="end-history-btn">
+      <i class="ti ti-clock-history" aria-hidden="true"></i> VIEW PAST CHAINDLES
+    </button>
+  </div>
+
+  <div id="lockout-screen">
+    <div id="lockout-title">ALREADY PLAYED</div>
+    <div id="lockout-sub">You've already played today's chain.</div>
+    <div id="lockout-result"></div>
+    <div id="lockout-chain"></div>
+    <div id="lockout-timer-label">NEXT CHAIN IN</div>
+    <div id="lockout-timer">--:--:--</div>
+    <button class="end-history-btn" id="lockout-history-btn" style="margin-top:8px;">
+      <i class="ti ti-clock-history" aria-hidden="true"></i> VIEW PAST CHAINDLES
+    </button>
+  </div>
+
+  <div id="history-screen">
+    <div id="history-header">
+      <button id="back-btn"><i class="ti ti-arrow-left" aria-hidden="true"></i> BACK</button>
+      <div id="history-title">Past Chaindles</div>
+    </div>
+    <div id="history-empty" style="display:none;">No past games yet — come back tomorrow!</div>
+    <div id="history-list"></div>
+  </div>
+</div>
+
+<script>
+const TOTAL_ROUNDS = 4;
+const DAILY_KEY = 'chaindle-daily-v1';
+const HISTORY_KEY = 'chaindle-history-v1';
+const STREAK_KEY = 'chaindle-streak-v1';
+
+const MILESTONES = [
+  { day:5,  type:'extra_guess', label:'+1 Extra Guess',       desc:'One bonus guess added to your pool for this puzzle.' },
+  { day:10, type:'free_letter', label:'Free Letter Reveal',   desc:'One random letter pre-revealed in each word.' },
+  { day:15, type:'extra_guess', label:'+1 Extra Guess',       desc:'One bonus guess added to your pool for this puzzle.' },
+  { day:20, type:'extra_guess', label:'+1 Extra Guess',       desc:'One bonus guess added to your pool for this puzzle.' },
+  { day:25, type:'free_letter', label:'Free Letter Reveal',   desc:'One random letter pre-revealed in each word.' },
+  { day:30, type:'reshuffle',   label:'Reshuffle',            desc:"Completely regenerate today's puzzle chain." },
+];
+
+let chain=[], theme='';
+let totalGuesses=6;
+let currentRound=0, globalGuessIndex=0, roundStartGuess=0, currentCol=0;
+let board=[], keyState={}, gameOver=false, roundsSolved=[];
+let timerInterval=null, previousScreen='game';
+let freeLetters={};
+let streakData={count:0,cycleStart:null,rewards:{},lastPlayed:null};
+
+/* ── Utils ── */
+function todayKey(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function formatDateLabel(){return new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});}
+function formatDateDisplay(ds){const[y,m,d]=ds.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'long',year:'numeric'});}
+function msUntilMidnight(){const n=new Date(),m=new Date(n);m.setHours(24,0,0,0);return m-n;}
+function formatCountdown(ms){if(ms<=0)return'00:00:00';const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000),s=Math.floor((ms%60000)/1000);return`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;}
+function startCountdown(elId){
+  if(timerInterval)clearInterval(timerInterval);
+  const el=document.getElementById(elId);
+  function tick(){const ms=msUntilMidnight();el.textContent=formatCountdown(ms);if(ms<=0){clearInterval(timerInterval);location.reload();}}
+  tick();timerInterval=setInterval(tick,1000);
+}
+
+/* ── Local storage helpers ── */
+function lsGet(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+/* ── Streak ── */
+function loadStreak(){
+  const s=lsGet(STREAK_KEY);
+  if(s)streakData=s;
+  const today=todayKey();
+  if(!streakData.cycleStart)streakData.cycleStart=today;
+  if(streakData.count>=30){streakData={count:0,cycleStart:today,rewards:{},lastPlayed:null};lsSet(STREAK_KEY,streakData);}
+}
+function saveStreak(){lsSet(STREAK_KEY,streakData);}
+function advanceStreak(){
+  const today=todayKey();
+  if(streakData.lastPlayed===today)return;
+  streakData.lastPlayed=today;
+  streakData.count=Math.min((streakData.count||0)+1,30);
+  const milestone=MILESTONES.find(m=>m.day===streakData.count);
+  if(milestone&&!streakData.rewards[`day${milestone.day}`]){
+    streakData.rewards[`day${milestone.day}`]={type:milestone.type,earned:today,consumed:false};
+    saveStreak();showRewardBanner(milestone);
+  } else {saveStreak();}
+  renderStreakBadge();
+}
+function getAvailableRewards(){return Object.values(streakData.rewards||{}).filter(r=>!r.consumed);}
+function hasReward(type){return getAvailableRewards().some(r=>r.type===type);}
+function consumeReward(type){
+  const key=Object.keys(streakData.rewards||{}).find(k=>!streakData.rewards[k].consumed&&streakData.rewards[k].type===type);
+  if(key){streakData.rewards[key].consumed=true;saveStreak();}
+}
+function renderStreakBadge(){document.getElementById('streak-label').textContent=`Day ${streakData.count||1}`;}
+function renderRewardsTray(){
+  const available=getAvailableRewards(),tray=document.getElementById('rewards-tray'),items=document.getElementById('rewards-tray-items');
+  items.innerHTML='';
+  if(available.length===0){tray.style.display='none';return;}
+  tray.style.display='flex';
+  available.forEach(r=>{
+    const chip=document.createElement('div');chip.className='reward-chip';
+    let icon='ti-gift',label='';
+    if(r.type==='extra_guess'){icon='ti-plus';label='+1 GUESS';}
+    else if(r.type==='free_letter'){icon='ti-letter-case';label='FREE LETTER';}
+    else if(r.type==='reshuffle'){icon='ti-refresh';label='RESHUFFLE';}
+    chip.innerHTML=`<i class="ti ${icon}" aria-hidden="true"></i>${label}`;
+    items.appendChild(chip);
+  });
+}
+function showRewardBanner(milestone){
+  const banner=document.getElementById('reward-banner');
+  document.getElementById('reward-banner-title').textContent=`DAY ${milestone.day} REWARD UNLOCKED`;
+  document.getElementById('reward-banner-sub').textContent=`${milestone.label} — ${milestone.desc}`;
+  banner.style.display='block';
+  setTimeout(()=>banner.style.display='none',6000);
+}
+document.getElementById('reward-banner-close').addEventListener('click',()=>{document.getElementById('reward-banner').style.display='none';});
+
+function renderStreakModal(){
+  const count=streakData.count||0;
+  document.getElementById('streak-progress-fill').style.width=`${Math.round((count/30)*100)}%`;
+  document.getElementById('streak-progress-label').textContent=`DAY ${count} OF 30 — ${30-count} DAYS UNTIL RESET`;
+  const ms=document.getElementById('streak-milestones');ms.innerHTML='';
+  MILESTONES.forEach(m=>{
+    const row=document.createElement('div');row.className='milestone-row';
+    const reached=count>=m.day,rewardKey=`day${m.day}`,reward=streakData.rewards&&streakData.rewards[rewardKey],consumed=reward&&reward.consumed;
+    if(reached)row.classList.add('reached');
+    else if(m.day===MILESTONES.find(x=>x.day>count)?.day)row.classList.add('current-target');
+    let statusHtml='';
+    if(!reached)statusHtml=`<span style="font-size:12px;color:var(--muted);">${m.day-count}d</span>`;
+    else if(consumed)statusHtml=`<span class="milestone-consumed">USED</span>`;
+    else statusHtml=`<span style="font-size:18px;">★</span>`;
+    row.innerHTML=`<div class="milestone-day ${reached?'reached':''}" >DAY ${m.day}</div><div class="milestone-desc ${reached?'reached':''}">${m.label}<br><span style="font-size:10px;color:var(--muted);">${m.desc}</span></div>${statusHtml}`;
+    ms.appendChild(row);
+  });
+}
+document.getElementById('streak-badge').addEventListener('click',()=>{
+  const modal=document.getElementById('streak-modal');
+  if(modal.style.display==='flex'){modal.style.display='none';}else{renderStreakModal();modal.style.display='flex';}
+});
+document.getElementById('streak-modal-close').addEventListener('click',()=>{document.getElementById('streak-modal').style.display='none';});
+
+/* ── Screen management ── */
+function showScreen(name){
+  ['loading','game-ui','end-screen','lockout-screen','history-screen'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.style.display=(id===name?(id==='game-ui'||id==='history-screen'?'flex':'block'):'none');
+  });
+  document.getElementById('badges-row').style.display=(name==='history-screen'?'none':'flex');
+  document.getElementById('rewards-tray').style.display='none';
+  document.getElementById('streak-modal').style.display='none';
+  if(name==='game-ui')renderRewardsTray();
+}
+
+/* ── Storage helpers ── */
+function getHistory(){return lsGet(HISTORY_KEY)||[];}
+function saveHistory(entry){
+  const h=getHistory(),idx=h.findIndex(x=>x.date===entry.date);
+  if(idx>=0)h[idx]=entry;else h.unshift(entry);
+  h.sort((a,b)=>b.date.localeCompare(a.date));
+  lsSet(HISTORY_KEY,h);
+}
+function saveState(override){
+  const data=override||{date:todayKey(),theme,chain,finished:gameOver,totalGuesses,freeLetters,
+    board:board.map(r=>({letters:r.letters,tileStates:r.tileStates||null})),
+    globalGuessIndex,roundStartGuess,currentRound,currentCol,keyState,roundsSolved};
+  lsSet(DAILY_KEY,data);
+}
+
+/* ── Load or generate ── */
+async function loadOrGenerate(){
+  document.getElementById('date-label').textContent=formatDateLabel();
+  loadStreak();renderStreakBadge();
+  showScreen('loading');
+  document.getElementById('loading-text').textContent='CHECKING TODAY...';
+  const today=todayKey();
+  const saved=lsGet(DAILY_KEY);
+  if(saved&&saved.date===today){
+    if(saved.finished){showLockout(saved);}else{restoreGame(saved);}
+    return;
+  }
+  document.getElementById('loading-text').textContent='LOADING TODAY\'S CHAIN...';
+  await fetchAndStartChain(today);
+}
+
+async function fetchAndStartChain(today, isReshuffle=false){
+  let chainData;
+  try{
+    const res=await fetch('/api/daily'+(isReshuffle?'?reshuffle=1':''));
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    chainData=await res.json();
+  }catch(e){
+    console.warn('API fetch failed, using fallback',e);
+    chainData={
+      theme:'Each word takes you along the path of fire and light...',
+      chain:[
+        {word:'FLAME',clue:'Start here: burning bright.'},
+        {word:'SPARK',clue:'From FLAME: what starts a FLAME — a tiny burst of fire.'},
+        {word:'LIGHT',clue:'From SPARK: both SPARK and FLAME produce this — illumination.'},
+        {word:'SHINE',clue:'From LIGHT: what LIGHT does on a surface — gleaming brightness.'},
+      ]
+    };
+  }
+
+  chain=chainData.chain;
+  theme=chainData.theme;
+  totalGuesses=6;
+  if(hasReward('extra_guess')){totalGuesses++;consumeReward('extra_guess');}
+  freeLetters={};
+  if(hasReward('free_letter')){chain.forEach((_,r)=>{freeLetters[r]=Math.floor(Math.random()*5);});consumeReward('free_letter');}
+
+  const reshuffleAvail=!isReshuffle&&hasReward('reshuffle');
+  const saveData={date:today,theme,chain,finished:false,totalGuesses,freeLetters,reshuffleUsed:isReshuffle,
+    board:Array(totalGuesses).fill(null).map(()=>({letters:Array(5).fill(''),tileStates:null})),
+    globalGuessIndex:0,roundStartGuess:0,currentRound:0,currentCol:0,keyState:{},roundsSolved:[]};
+  saveState(saveData);
+  if(isReshuffle){consumeReward('reshuffle');saveStreak();}
+  startGame(saveData);
+  document.getElementById('reshuffle-btn-wrap').style.display=reshuffleAvail?'block':'none';
+}
+
+function applyFreeLetters(){
+  if(freeLetters[currentRound]===undefined)return;
+  const col=freeLetters[currentRound],secret=chain[currentRound].word;
+  board[globalGuessIndex].letters[col]=secret[col];
+}
+
+function restoreGame(saved){
+  chain=saved.chain;theme=saved.theme;totalGuesses=saved.totalGuesses||6;freeLetters=saved.freeLetters||{};
+  currentRound=saved.currentRound;globalGuessIndex=saved.globalGuessIndex;
+  roundStartGuess=saved.roundStartGuess;currentCol=saved.currentCol;
+  keyState=saved.keyState||{};roundsSolved=saved.roundsSolved||[];
+  board=saved.board.map(r=>({letters:r.letters,tileStates:r.tileStates||null}));
+  gameOver=false;
+  document.getElementById('reshuffle-btn-wrap').style.display=(!saved.reshuffleUsed&&hasReward('reshuffle'))?'block':'none';
+  showScreen('game-ui');
+  document.getElementById('theme-box').style.display='block';
+  document.getElementById('theme-text').textContent=theme;
+  renderRoundBar();renderBoardFull();renderKeyboard();updateClue();updateGuessCounter();
+}
+
+function startGame(saved){
+  chain=saved.chain;theme=saved.theme;totalGuesses=saved.totalGuesses||6;freeLetters=saved.freeLetters||{};
+  currentRound=0;globalGuessIndex=0;roundStartGuess=0;currentCol=0;keyState={};roundsSolved=[];gameOver=false;
+  board=Array(totalGuesses).fill(null).map(()=>({letters:Array(5).fill(''),tileStates:null}));
+  applyFreeLetters();
+  showScreen('game-ui');
+  document.getElementById('theme-box').style.display='block';
+  document.getElementById('theme-text').textContent=theme;
+  renderRoundBar();renderBoardFull();renderKeyboard();updateClue();updateGuessCounter();
+}
+
+document.getElementById('reshuffle-btn').addEventListener('click',async()=>{
+  if(!confirm("Use your Reshuffle reward to generate a completely new chain today?"))return;
+  document.getElementById('reshuffle-btn-wrap').style.display='none';
+  showScreen('loading');
+  document.getElementById('loading-text').textContent='RESHUFFLING CHAIN...';
+  await fetchAndStartChain(todayKey(),true);
+});
+
+/* ── Lockout ── */
+function showLockout(saved){
+  showScreen('lockout-screen');
+  const solved=saved.roundsSolved||[],total=saved.chain?saved.chain.length:TOTAL_ROUNDS;
+  document.getElementById('lockout-result').textContent=(solved.length===total)?`You completed the chain! ${solved.length}/${total} words found.`:`You found ${solved.length} of ${total} words.`;
+  const chainEl=document.getElementById('lockout-chain');chainEl.innerHTML='';
+  if(saved.chain)saved.chain.forEach((c,r)=>{
+    if(r>0){const a=document.createElement('div');a.style.cssText='color:#555;font-size:18px;display:flex;align-items:center;';a.textContent='→';chainEl.appendChild(a);}
+    const w=document.createElement('div');w.className='chain-word '+(saved.roundsSolved?.find(s=>s.round===r)?'solved':'missed');w.textContent=c.word;chainEl.appendChild(w);
+  });
+  startCountdown('lockout-timer');
+}
+
+/* ── Render helpers ── */
+function renderRoundBar(){
+  const bar=document.getElementById('round-bar');bar.innerHTML='';
+  for(let i=0;i<TOTAL_ROUNDS;i++){const pip=document.createElement('div');pip.className='round-pip'+(i<currentRound?' done':i===currentRound?' active':'');bar.appendChild(pip);}
+}
+function updateClue(){
+  const box=document.getElementById('clue-box'),rnd=document.getElementById('clue-round'),txt=document.getElementById('clue-text');
+  if(currentRound<TOTAL_ROUNDS){box.style.display='block';rnd.textContent=`ROUND ${currentRound+1} OF ${TOTAL_ROUNDS}`;txt.textContent=chain[currentRound].clue;}
+  else box.style.display='none';
+}
+function updateGuessCounter(){
+  const rem=totalGuesses-globalGuessIndex;
+  document.getElementById('guess-counter').textContent=`  ${rem} guess${rem!==1?'es':''} left`;
+}
+function renderBoardFull(){
+  const boardEl=document.getElementById('board');boardEl.innerHTML='';
+  let globalRow=0;
+  for(let r=0;r<=currentRound&&r<TOTAL_ROUNDS;r++){
+    if(r>0){const div=document.createElement('div');div.className='round-divider';div.innerHTML=`<hr><span>ROUND ${r+1}</span><hr>`;boardEl.appendChild(div);}
+    const solved=roundsSolved.find(s=>s.round===r),isCurrentRound=r===currentRound;
+    const rowsThisRound=solved?solved.guessesUsed:(globalGuessIndex-roundStartGuess+(isCurrentRound?1:0));
+    for(let rr=0;rr<rowsThisRound&&globalRow<totalGuesses;rr++,globalRow++){
+      const isActiveRow=isCurrentRound&&!solved&&globalRow===globalGuessIndex;
+      const rowEl=document.createElement('div');rowEl.className='row';rowEl.id=`row-${globalRow}`;
+      for(let c=0;c<5;c++){
+        const tile=document.createElement('div');tile.id=`tile-${globalRow}-${c}`;
+        tile.className='tile'+(isActiveRow?' active-row':'');
+        const letter=board[globalRow]?board[globalRow].letters[c]:'';
+        tile.textContent=letter;
+        const ts=board[globalRow]&&board[globalRow].tileStates;
+        if(ts&&ts[c])tile.classList.add(ts[c]);
+        else if(isActiveRow&&freeLetters[r]===c){tile.classList.add('free-letter');if(letter)tile.classList.remove('active-row');}
+        else if(letter)tile.classList.add('filled');
+        rowEl.appendChild(tile);
+      }
+      boardEl.appendChild(rowEl);
+    }
+  }
+}
+
+/* ── Input handling ── */
+function handleKey(k){
+  if(gameOver)return;
+  const freecol=freeLetters[currentRound];
+  if(k==='⌫'||k==='BACKSPACE'){
+    if(currentCol>0){
+      const newCol=currentCol-1;
+      if(newCol!==freecol){currentCol--;board[globalGuessIndex].letters[currentCol]='';const t=document.getElementById(`tile-${globalGuessIndex}-${currentCol}`);if(t){t.textContent='';t.classList.remove('filled');}}
+    }
+  } else if(k==='ENTER'){
+    submitGuess();
+  } else if(/^[A-Z]$/.test(k)&&currentCol<5){
+    if(currentCol===freecol&&freecol!==undefined){currentCol++;}
+    if(currentCol<5){
+      board[globalGuessIndex].letters[currentCol]=k;
+      const t=document.getElementById(`tile-${globalGuessIndex}-${currentCol}`);
+      if(t){t.textContent=k;t.classList.remove('free-letter');t.classList.add('filled');t.style.animation='none';void t.offsetWidth;t.style.animation='pop .1s ease';}
+      currentCol++;
+    }
+  }
+}
+
+function submitGuess(){
+  const filled=board[globalGuessIndex].letters.filter(l=>l!=='').length;
+  if(filled<5){showMsg('NOT ENOUGH LETTERS',1400);shakeRow(globalGuessIndex);return;}
+  const word=board[globalGuessIndex].letters.join(''),secret=chain[currentRound].word;
+  const result=scoreWord(word,secret);
+  flipRow(globalGuessIndex,result,()=>{
+    board[globalGuessIndex].tileStates=result;
+    result.forEach((s,i)=>updateKeyState(board[globalGuessIndex].letters[i],s));
+    updateKeyColors();
+    const won=result.every(s=>s==='correct'),guessesUsed=globalGuessIndex-roundStartGuess+1;
+    if(won){
+      roundsSolved.push({round:currentRound,guessesUsed,endRow:globalGuessIndex,word:secret});
+      globalGuessIndex++;currentCol=0;currentRound++;
+      renderRoundBar();updateGuessCounter();saveState();
+      if(currentRound>=TOTAL_ROUNDS){advanceStreak();setTimeout(()=>showEndScreen(true),600);}
+      else{roundStartGuess=globalGuessIndex;setTimeout(()=>{applyFreeLetters();updateClue();renderBoardFull();showMsg(`ROUND ${currentRound+1}`,1400);},500);}
+    }else{
+      globalGuessIndex++;currentCol=0;updateGuessCounter();saveState();
+      if(globalGuessIndex>=totalGuesses){advanceStreak();setTimeout(()=>showEndScreen(false),600);}
+      else{setTimeout(()=>{addRowToBoard();applyFreeLetterToRow(globalGuessIndex);},300);}
+    }
+  });
+}
+
+function addRowToBoard(){
+  const boardEl=document.getElementById('board'),freecol=freeLetters[currentRound];
+  const rowEl=document.createElement('div');rowEl.className='row';rowEl.id=`row-${globalGuessIndex}`;
+  for(let c=0;c<5;c++){
+    const tile=document.createElement('div');tile.id=`tile-${globalGuessIndex}-${c}`;
+    if(c===freecol){tile.className='tile free-letter';tile.textContent=chain[currentRound].word[c];board[globalGuessIndex].letters[c]=chain[currentRound].word[c];}
+    else tile.className='tile active-row';
+    rowEl.appendChild(tile);
+  }
+  boardEl.appendChild(rowEl);
+}
+function applyFreeLetterToRow(row){
+  const freecol=freeLetters[currentRound];if(freecol===undefined)return;
+  const secret=chain[currentRound].word;
+  board[row].letters[freecol]=secret[freecol];
+  document.querySelectorAll(`#row-${row} .tile`).forEach((t,c)=>{
+    t.classList.add('active-row');
+    if(c===freecol){t.textContent=secret[freecol];t.classList.add('free-letter');t.classList.remove('active-row');}
+  });
+}
+
+function scoreWord(g,s){
+  const sa=s.split(''),ga=g.split(''),res=Array(5).fill('absent'),rem=[...sa];
+  ga.forEach((l,i)=>{if(l===sa[i]){res[i]='correct';rem[rem.indexOf(l)]='_';}});
+  ga.forEach((l,i)=>{if(res[i]==='absent'){const j=rem.indexOf(l);if(j>=0){res[i]='present';rem[j]='_';}}});
+  return res;
+}
+function flipRow(row,result,cb){
+  for(let c=0;c<5;c++){
+    const t=document.getElementById(`tile-${row}-${c}`);if(!t)continue;
+    setTimeout(()=>{
+      t.style.transition='transform .22s ease';t.style.transform='rotateX(-90deg)';
+      setTimeout(()=>{t.classList.remove('active-row','filled','free-letter');t.classList.add(result[c]);t.style.transform='rotateX(0)';if(c===4)setTimeout(cb,150);},220);
+    },c*110);
+  }
+}
+function shakeRow(row){const r=document.getElementById(`row-${row}`);if(!r)return;r.style.animation='none';void r.offsetWidth;r.style.animation='shake .4s ease';setTimeout(()=>r.style.animation='',500);}
+function updateKeyState(l,s){const p={correct:3,present:2,absent:1};if((p[s]||0)>(p[keyState[l]]||0))keyState[l]=s;}
+function updateKeyColors(){Object.entries(keyState).forEach(([k,s])=>{const b=document.getElementById('key-'+k);if(b){b.className='key'+(b.textContent.length>1?' wide':'');b.classList.add(s);}});}
+function renderKeyboard(){
+  const kb=document.getElementById('keyboard');kb.innerHTML='';
+  [['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L'],['ENTER','Z','X','C','V','B','N','M','⌫']].forEach(r=>{
+    const row=document.createElement('div');row.className='kb-row';
+    r.forEach(k=>{const btn=document.createElement('button');btn.textContent=k;btn.className='key'+(k.length>1?' wide':'');btn.id='key-'+k;if(keyState[k])btn.classList.add(keyState[k]);btn.addEventListener('click',()=>handleKey(k));row.appendChild(btn);});
+    kb.appendChild(row);
+  });
+}
+function showMsg(msg,dur=0){const el=document.getElementById('message');el.textContent=msg;el.classList.add('show');if(dur)setTimeout(()=>el.classList.remove('show'),dur);}
+
+/* ── End screen ── */
+function showEndScreen(allSolved){
+  gameOver=true;
+  const finished={date:todayKey(),theme,chain,finished:true,totalGuesses,freeLetters,
+    board:board.map(r=>({letters:r.letters,tileStates:r.tileStates||null})),
+    globalGuessIndex,roundStartGuess,currentRound,currentCol,keyState,roundsSolved};
+  saveState(finished);
+  saveHistory({date:todayKey(),theme,chain,roundsSolved,allSolved,
+    board:board.map(r=>({letters:r.letters,tileStates:r.tileStates||null})),totalGuessesUsed:globalGuessIndex});
+  showScreen('end-screen');
+  document.getElementById('end-title').textContent=allSolved?'CHAIN COMPLETE':'CHAIN BROKEN';
+  document.getElementById('end-title').style.color=allSolved?'#4ecdc4':'#e85447';
+  document.getElementById('end-sub').textContent=`${roundsSolved.length} of ${TOTAL_ROUNDS} words found`;
+  const chainEl=document.getElementById('end-chain');chainEl.innerHTML='';
+  chain.forEach((c,r)=>{
+    if(r>0){const a=document.createElement('div');a.style.cssText='color:#555;font-size:18px;display:flex;align-items:center;';a.textContent='→';chainEl.appendChild(a);}
+    const w=document.createElement('div');w.className='chain-word '+(roundsSolved.find(s=>s.round===r)?'solved':'missed');w.textContent=c.word;chainEl.appendChild(w);
+  });
+  startCountdown('end-timer');
+}
+
+/* ── History screen ── */
+function showHistoryScreen(){
+  if(timerInterval)clearInterval(timerInterval);
+  showScreen('history-screen');
+  const history=getHistory(),today=todayKey(),past=history.filter(h=>h.date!==today);
+  const listEl=document.getElementById('history-list'),emptyEl=document.getElementById('history-empty');
+  listEl.innerHTML='';
+  if(past.length===0){emptyEl.style.display='block';listEl.style.display='none';return;}
+  emptyEl.style.display='none';listEl.style.display='flex';
+  past.forEach(entry=>{
+    const card=document.createElement('div');card.className='history-card';
+    const solved=entry.roundsSolved||[],allSolved=entry.allSolved||(solved.length===TOTAL_ROUNDS);
+    card.innerHTML=`<div class="history-card-header"><div class="history-card-date">${formatDateDisplay(entry.date)}</div><div class="history-card-score ${allSolved?'win':'lose'}">${solved.length}/${TOTAL_ROUNDS} ${allSolved?'COMPLETE':'INCOMPLETE'}</div></div><div class="history-card-theme">"${entry.theme||''}"</div><div class="history-card-body"></div>`;
+    listEl.appendChild(card);
+    renderHistoryRounds(entry,card.querySelector('.history-card-body'));
+  });
+}
+function renderHistoryRounds(entry,container){
+  const boardRows=entry.board||[],solved=entry.roundsSolved||[],ch=entry.chain||[];
+  let globalRow=0;
+  for(let r=0;r<TOTAL_ROUNDS;r++){
+    const roundDiv=document.createElement('div');roundDiv.className='history-round';
+    const wasSolved=solved.find(s=>s.round===r),guessesUsed=wasSolved?wasSolved.guessesUsed:0;
+    const labelDiv=document.createElement('div');labelDiv.className='history-round-label';
+    const wordSpan=document.createElement('span');wordSpan.className='round-answer '+(wasSolved?'solved':'missed');
+    wordSpan.textContent=ch[r]?ch[r].word:'?????';
+    labelDiv.innerHTML=`<hr><span style="color:var(--muted);font-size:10px;letter-spacing:2px;">R${r+1}</span>`;
+    labelDiv.appendChild(wordSpan);
+    const hr2=document.createElement('hr');hr2.style.cssText='flex:1;border:none;border-top:1px solid var(--border);';
+    labelDiv.appendChild(hr2);roundDiv.appendChild(labelDiv);
+    const miniBoard=document.createElement('div');miniBoard.className='history-mini-board';
+    if(!wasSolved&&guessesUsed===0){
+      const noRow=document.createElement('div');noRow.className='history-row';
+      for(let c=0;c<5;c++){const t=document.createElement('div');t.className='mini-tile empty';t.textContent='–';noRow.appendChild(t);}
+      miniBoard.appendChild(noRow);
+    }else{
+      const rowCount=wasSolved?guessesUsed:TOTAL_ROUNDS;
+      for(let rr=0;rr<rowCount&&globalRow<boardRows.length;rr++,globalRow++){
+        const rowData=boardRows[globalRow];if(!rowData)break;
+        const miniRow=document.createElement('div');miniRow.className='history-row';
+        for(let c=0;c<5;c++){
+          const t=document.createElement('div');t.className='mini-tile';t.textContent=rowData.letters[c]||'';
+          if(rowData.tileStates&&rowData.tileStates[c])t.classList.add(rowData.tileStates[c]);
+          else if(!rowData.letters[c])t.classList.add('empty');
+          miniRow.appendChild(t);
+        }
+        miniBoard.appendChild(miniRow);
+      }
+    }
+    roundDiv.appendChild(miniBoard);container.appendChild(roundDiv);
+  }
+}
+
+/* ── Nav ── */
+document.getElementById('history-btn').addEventListener('click',()=>{previousScreen='game';showHistoryScreen();});
+document.getElementById('end-history-btn').addEventListener('click',()=>{previousScreen='end';showHistoryScreen();});
+document.getElementById('lockout-history-btn').addEventListener('click',()=>{previousScreen='lockout';showHistoryScreen();});
+document.getElementById('back-btn').addEventListener('click',()=>{
+  if(timerInterval)clearInterval(timerInterval);
+  if(previousScreen==='end'){showScreen('end-screen');startCountdown('end-timer');}
+  else if(previousScreen==='lockout'){showScreen('lockout-screen');startCountdown('lockout-timer');}
+  else{showScreen('game-ui');renderRewardsTray();}
+});
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('game-ui').style.display==='none')return;
+  const k=e.key.toUpperCase();
+  if(k==='ENTER')handleKey('ENTER');
+  else if(k==='BACKSPACE')handleKey('⌫');
+  else if(/^[A-Z]$/.test(k))handleKey(k);
+});
+
+loadOrGenerate();
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "chaindle",
+  "version": "1.0.0",
+  "description": "Chain·dle — daily word chain puzzle",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.34.0"
+  },
+  "devDependencies": {
+    "vercel": "^39.0.0"
+  }
+}
